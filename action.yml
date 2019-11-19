@@ -1,16 +1,15 @@
-# action.yml
 name: 'rust docker action test'
 description: 'hello world'
-#inputs:
-#  who-to-greet:  # id of input
-#    description: 'Who to greet'
-#    required: true
-#    default: 'World'
+inputs:
+  repo:  
+    description: 'repo'
+    required: true
+    default: 'sjeohp/actions-test'
 #outputs:
 #  time: # id of output
 #    description: 'The time we greeted you'
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  #  args:
-  #  - ${{ inputs.who-to-greet }}
+  args:
+    - ${{ inputs.repo }}
