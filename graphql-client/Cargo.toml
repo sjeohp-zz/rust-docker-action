@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "graphql_client",
+    "graphql_client_cli",
+    "graphql_client_codegen",
+    "graphql_client_web",
+    "graphql-introspection-query",
+    "graphql_query_derive",
+
+    # Example crates.
+    "examples/*",
+]
