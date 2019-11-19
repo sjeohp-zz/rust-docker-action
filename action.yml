@@ -12,5 +12,5 @@ description: 'hello world'
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  args:
-    - ${{ inputs.who-to-greet }}
+  #  args:
+  #  - ${{ inputs.who-to-greet }}
