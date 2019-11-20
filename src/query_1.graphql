@@ -1,4 +1,4 @@
-mutation RequestReviews($pullRequestId: ID!, $teamIds: [ID!], $userIds: [ID!]) {
+mutation RequestReviews($input: { $pullRequestId: ID!, $teamIds: [ID!], $userIds: [ID!] }) {
   requestReviews(pullRequestId: $pullRequestId, teamIds: $teamIds, userIds: $userIds) {
     clientMutationId
     pullRequest
