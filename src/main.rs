@@ -13,7 +13,7 @@ type URI = String;
     query_path = "src/query_1.graphql",
     response_derives = "Debug"
 )]
-struct RepoView;
+struct RequestReviews;
 
 #[derive(StructOpt)]
 #[structopt(author, about)]
@@ -49,9 +49,12 @@ fn main() -> Result<(), failure::Error> {
 
     let repo_token = args.repo_token;
 
-    let q = RepoView::build_query(repo_view::Variables {
-        owner: owner.to_string(),
-        name: name.to_string(),
+    let q = RequestReviews::build_query(request_reviews::Variables {
+        client_mutation_id: "client".to_string(),
+        pull_request_id: 1,
+        team_ids: [1],
+        union: true,
+        user_ids: [1],
     });
 
     let client = reqwest::Client::new();
