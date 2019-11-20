@@ -1,8 +1,8 @@
-FROM rust:1.31
+FROM rustlang/rust:nightly
 
-#WORKDIR /usr/src/rust-docker-action
+WORKDIR /usr/src/rust-docker-action
 COPY . .
 
-RUN cargo install --path .
+RUN cargo +nightly install --path .
 
-CMD ["rust-docker-action"]
+CMD ["GITHUB_API_TOKEN=f7c45dae699893991cabdb06bfca658f7bb5baa5 rust-docker-action"]

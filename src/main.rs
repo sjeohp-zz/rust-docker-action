@@ -39,7 +39,7 @@ fn main() -> Result<(), failure::Error> {
     dotenv::dotenv().ok();
     env_logger::init();
 
-    let config: Env = envy::from_env().context("while reading from environment")?;
+//    let config: Env = envy::from_env().context("while reading from environment")?;
 
     let args = Command::from_args();
 
@@ -55,7 +55,7 @@ fn main() -> Result<(), failure::Error> {
 
     let mut res = client
         .post("https://api.github.com/graphql")
-        .bearer_auth(config.github_api_token)
+//        .bearer_auth(config.github_api_token)
         .json(&q)
         .send()?;
 

@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 failure = "*"
-graphql_client = { path = "./graphql-client/graphql_client" }
+graphql_client = "0.8"
 serde = "^1.0"
 reqwest = "^0.9"
 prettytable-rs = "^0.7"
