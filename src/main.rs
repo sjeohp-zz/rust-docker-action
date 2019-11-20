@@ -13,7 +13,7 @@ type URI = String;
     query_path = "src/query_1.graphql",
     response_derives = "Debug"
 )]
-struct requestReviews;
+struct RequestReviews;
 
 #[derive(StructOpt)]
 #[structopt(author, about)]
@@ -49,12 +49,10 @@ fn main() -> Result<(), failure::Error> {
 
     let repo_token = args.repo_token;
 
-    let q = requestReviews::build_query(request_reviews::Variables {
-        client_mutation_id: "client".to_string(),
-        pull_request_id: 1,
-        team_ids: [1],
-        union: true,
-        user_ids: [1],
+    let q = RequestReviews::build_query(request_reviews::Variables {
+          pull_request_id: "1".to_string(),
+          team_ids: Some(vec!["1".to_string()]),
+          user_ids: Some(vec!["1".to_string()]),
     });
 
     let client = reqwest::Client::new();
@@ -65,7 +63,7 @@ fn main() -> Result<(), failure::Error> {
         .json(&q)
         .send()?;
 
-    let response_body: Response<repo_view::ResponseData> = res.json()?;
+    let response_body: Response<request_reviews::ResponseData> = res.json()?;
     info!("{:?}", response_body);
 
     if let Some(errors) = response_body.errors {
@@ -76,15 +74,11 @@ fn main() -> Result<(), failure::Error> {
         }
     }
 
-    let response_data: repo_view::ResponseData = response_body.data.expect("missing response data");
+    let response_data = response_body.data.expect("missing response data").request_reviews.expect("request_reviews");
 
-    let stars: Option<i64> = response_data
-        .repository
-        .as_ref()
-        .map(|repo| repo.stargazers.total_count);
+    println!("{:?}\t{:?}\t🌟", response_data.client_mutation_id, response_data.pull_request);
 
-    println!("{}/{} - 🌟 {}", owner, name, stars.unwrap_or(0),);
-
+    /*
     let mut table = prettytable::Table::new();
 
     table.add_row(row!(b => "issue", "comments"));
@@ -102,6 +96,7 @@ fn main() -> Result<(), failure::Error> {
     }
 
     table.printstd();
+    */
     Ok(())
 }
 
