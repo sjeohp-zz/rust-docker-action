@@ -13,7 +13,7 @@ type URI = String;
     query_path = "src/query_1.graphql",
     response_derives = "Debug"
 )]
-struct RequestReviews;
+struct requestReviews;
 
 #[derive(StructOpt)]
 #[structopt(author, about)]
@@ -49,7 +49,7 @@ fn main() -> Result<(), failure::Error> {
 
     let repo_token = args.repo_token;
 
-    let q = RequestReviews::build_query(request_reviews::Variables {
+    let q = requestReviews::build_query(request_reviews::Variables {
         client_mutation_id: "client".to_string(),
         pull_request_id: 1,
         team_ids: [1],
