@@ -20,6 +20,7 @@ struct RepoView;
 struct Command {
     #[structopt(name = "repository")]
     repo: String,
+    repo_token: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -46,6 +47,8 @@ fn main() -> Result<(), failure::Error> {
     let repo = args.repo;
     let (owner, name) = parse_repo_name(&repo).unwrap_or(("tomhoule", "graphql-client"));
 
+    let repo_token = args.repo_token;
+
     let q = RepoView::build_query(repo_view::Variables {
         owner: owner.to_string(),
         name: name.to_string(),
@@ -55,7 +58,7 @@ fn main() -> Result<(), failure::Error> {
 
     let mut res = client
         .post("https://api.github.com/graphql")
-//        .bearer_auth(config.github_api_token)
+        .bearer_auth(repo_token)
         .json(&q)
         .send()?;
 

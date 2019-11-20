@@ -5,6 +5,9 @@ inputs:
     description: 'repo'
     required: true
     default: 'sjeohp/actions-test'
+  repo_token:
+    description: 'repo-token'
+    required: true
 #outputs:
 #  time: # id of output
 #    description: 'The time we greeted you'
@@ -13,3 +16,4 @@ runs:
   image: 'Dockerfile'
   args:
     - ${{ inputs.repo }}
+    - ${{ inputs.repo-token }}
