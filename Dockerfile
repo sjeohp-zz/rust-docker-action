@@ -5,4 +5,4 @@ COPY . .
 
 RUN cargo +nightly install --path . --force 
 
-CMD ["rust-docker-action"]
+ENTRYPOINT ["rust-docker-action"]
