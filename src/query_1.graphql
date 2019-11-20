@@ -1,2 +1,1 @@
-mutation requestReviews($input: RequestReviewsInput!) {
-}
+mutation requestReviews($input: RequestReviewsInput!)
