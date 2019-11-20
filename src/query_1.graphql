@@ -1,8 +1,2 @@
 mutation requestReviews($input: RequestReviewsInput!) {
-  pullRequest {
-    title
-    commits {
-      totalCount
-    }
-  }
 }
