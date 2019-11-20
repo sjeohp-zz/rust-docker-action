@@ -4,7 +4,6 @@ inputs:
   repo:  
     description: 'repo'
     required: true
-    default: 'sjeohp/actions-test'
   repo_token:
     description: 'repo-token'
     required: true
