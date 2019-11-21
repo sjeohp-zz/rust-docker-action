@@ -75,7 +75,7 @@ fn main() -> Result<(), failure::Error> {
 
         let mut res = client
             .post("https://api.github.com/graphql")
-            .bearer_auth(repo_token)
+            .bearer_auth(repo_token.clone())
             .json(&q0)
             .send()?;
 
@@ -121,7 +121,7 @@ fn main() -> Result<(), failure::Error> {
         (pr_id, suggested_id, author_id)
     };
 
-    let assign = {
+    if let Some(author_id) = author_id {
         let q = AssignAuthor::build_query(assign_author::Variables {
             input: assign_author::AddAssigneesToAssignableInput {
                 assignable_id: pr_id.clone(),
@@ -135,7 +135,7 @@ fn main() -> Result<(), failure::Error> {
         let mut res = client
             .post("https://api.github.com/graphql")
             .bearer_auth(repo_token)
-            .json(&q0)
+            .json(&q)
             .send()?;
 
         let response_body: Response<last_pull_request::ResponseData> = res.json()?;
@@ -150,8 +150,7 @@ fn main() -> Result<(), failure::Error> {
         }
 
         let response = response_body.data.expect("response data");
-        response
-    };
+    }
 
     //    let q1 = RequestReviews::build_query(request_reviews::Variables {
     //        input: request_reviews::RequestReviewsInput {
