@@ -9,7 +9,7 @@ type URI = String;
 
 #[derive(GraphQLQuery)]
 #[graphql(
-    schema_path = "src/schema.graphql",
+    schema_path = "src/schema.public.graphql",
     query_path = "src/query_1.graphql",
     response_derives = "Debug"
 )]
@@ -17,7 +17,15 @@ struct LastPullRequest;
 
 #[derive(GraphQLQuery)]
 #[graphql(
-    schema_path = "src/schema.graphql",
+    schema_path = "src/schema.public.graphql",
+    query_path = "src/query_1.graphql",
+    response_derives = "Debug"
+)]
+struct AssignAuthor;
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "src/schema.public.graphql",
     query_path = "src/query_1.graphql",
     response_derives = "Debug"
 )]
@@ -57,7 +65,7 @@ fn main() -> Result<(), failure::Error> {
 
     let repo_token = args.repo_token;
 
-    let (pr_id, suggested_id) = {
+    let (pr_id, suggested_id, author_id) = {
         let q0 = LastPullRequest::build_query(last_pull_request::Variables {
             name: name.to_string(),
             owner: owner.to_string(),
@@ -93,10 +101,56 @@ fn main() -> Result<(), failure::Error> {
         assert!(response_prs.len() == 1);
         let pr = &response_prs.last().unwrap().as_ref().expect("some node");
         let pr_id = pr.id.clone();
-        let suggested_id = pr.suggested_reviewers.first().map(|rev| rev.as_ref().expect("suggestion contains reviewer").reviewer.id.clone());
+        let suggested_id = pr.suggested_reviewers.first().map(|rev| {
+            rev.as_ref()
+                .expect("suggestion contains reviewer")
+                .reviewer
+                .id
+                .clone()
+        });
+        use crate::last_pull_request::LastPullRequestRepositoryPullRequestsNodesAuthorOn::User;
+        let author_id = pr.author.as_ref().and_then(|auth| {
+            if let User(user) = &auth.on {
+                Some(user.id.clone())
+            } else {
+                None
+            }
+        });
 
         println!("{:?}\t{:?}\t🌟", pr_id, suggested_id);
-        (pr_id, suggested_id)
+        (pr_id, suggested_id, author_id)
+    };
+
+    let assign = {
+        let q = AssignAuthor::build_query(assign_author::Variables {
+            input: assign_author::AssignAuthorInput {
+                assignable_id: pr_id.clone(),
+                assignee_ids: vec![author_id.clone()],
+                client_mutation_id: None,
+            },
+        });
+
+        let client = reqwest::Client::new();
+
+        let mut res = client
+            .post("https://api.github.com/graphql")
+            .bearer_auth(repo_token)
+            .json(&q0)
+            .send()?;
+
+        let response_body: Response<last_pull_request::ResponseData> = res.json()?;
+        info!("{:?}", response_body);
+
+        if let Some(errors) = response_body.errors {
+            println!("there are errors:");
+
+            for error in &errors {
+                println!("{:?}", error);
+            }
+        }
+
+        let response = response_body.data.expect("response data");
+        response
     };
 
     //    let q1 = RequestReviews::build_query(request_reviews::Variables {

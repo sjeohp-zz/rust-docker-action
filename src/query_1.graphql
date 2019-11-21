@@ -3,6 +3,12 @@ query LastPullRequest($name: String!, $owner: String!) {
         pullRequests(last: 1) {
             nodes {
                 id
+                author { 
+                    __typename
+                    ... on User {
+                        id
+                    }
+                }
                 suggestedReviewers {
                     reviewer {
                         id
@@ -11,6 +17,20 @@ query LastPullRequest($name: String!, $owner: String!) {
             }
         }
     }
+}
+
+mutation AssignAuthor($input: AddAssigneesToAssignableInput!) {
+  addAssigneesToAssignable(input: $input) {
+    clientMutationId
+    assignable {
+        __typename
+        ... on PullRequest {
+            assignees {
+                totalCount
+            }
+        }
+    }
+  }
 }
 
 mutation RequestReviews($input: RequestReviewsInput!) {
