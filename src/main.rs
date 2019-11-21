@@ -123,7 +123,7 @@ fn main() -> Result<(), failure::Error> {
 
     let assign = {
         let q = AssignAuthor::build_query(assign_author::Variables {
-            input: assign_author::AssignAuthorInput {
+            input: assign_author::AddAssigneesToAssignableInput {
                 assignable_id: pr_id.clone(),
                 assignee_ids: vec![author_id.clone()],
                 client_mutation_id: None,
