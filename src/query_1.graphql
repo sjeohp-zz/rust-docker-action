@@ -1,6 +1,10 @@
 mutation RequestReviews($input: RequestReviewsInput!) {
   requestReviews(input: $input) {
     clientMutationId
-    pullRequest
+    pullRequest {
+        reviewRequests {
+            totalCount
+        }
+    }
   }
 }
