@@ -40,7 +40,7 @@ fn main() -> Result<(), failure::Error> {
     dotenv::dotenv().ok();
     env_logger::init();
 
-//    let config: Env = envy::from_env().context("while reading from environment")?;
+    //    let config: Env = envy::from_env().context("while reading from environment")?;
 
     let args = Command::from_args();
 
@@ -50,9 +50,13 @@ fn main() -> Result<(), failure::Error> {
     let repo_token = args.repo_token;
 
     let q = RequestReviews::build_query(request_reviews::Variables {
-          pull_request_id: "1".to_string(),
-          team_ids: Some(vec!["1".to_string()]),
-          user_ids: Some(vec!["1".to_string()]),
+        input: request_reviews::RequestReviewsInput {
+            client_mutation_id: None,
+            pull_request_id: "1".to_string(),
+            team_ids: Some(vec!["1".to_string()]),
+            union: None,
+            user_ids: Some(vec!["1".to_string()]),
+        },
     });
 
     let client = reqwest::Client::new();
@@ -74,9 +78,16 @@ fn main() -> Result<(), failure::Error> {
         }
     }
 
-    let response_data = response_body.data.expect("missing response data").request_reviews.expect("request_reviews");
+    let response_data = response_body
+        .data
+        .expect("missing response data")
+        .request_reviews
+        .expect("request_reviews");
 
-    println!("{:?}\t{:?}\t🌟", response_data.client_mutation_id, response_data.pull_request);
+    println!(
+        "{:?}\t{:?}\t🌟",
+        response_data.client_mutation_id, response_data.pull_request
+    );
 
     /*
     let mut table = prettytable::Table::new();

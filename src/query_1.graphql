@@ -1,5 +1,5 @@
-mutation RequestReviews($input: { $pullRequestId: ID!, $teamIds: [ID!], $userIds: [ID!] }) {
-  requestReviews(pullRequestId: $pullRequestId, teamIds: $teamIds, userIds: $userIds) {
+mutation RequestReviews($input: RequestReviewsInput!) {
+  requestReviews(input: $input) {
     clientMutationId
     pullRequest
   }
