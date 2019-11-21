@@ -13,6 +13,14 @@ type URI = String;
     query_path = "src/query_1.graphql",
     response_derives = "Debug"
 )]
+struct LastPullRequest;
+
+#[derive(GraphQLQuery)]
+#[graphql(
+    schema_path = "src/schema.graphql",
+    query_path = "src/query_1.graphql",
+    response_derives = "Debug"
+)]
 struct RequestReviews;
 
 #[derive(StructOpt)]
@@ -49,25 +57,30 @@ fn main() -> Result<(), failure::Error> {
 
     let repo_token = args.repo_token;
 
-    let q = RequestReviews::build_query(request_reviews::Variables {
-        input: request_reviews::RequestReviewsInput {
-            client_mutation_id: None,
-            pull_request_id: "1".to_string(),
-            team_ids: Some(vec!["1".to_string()]),
-            union: None,
-            user_ids: Some(vec!["1".to_string()]),
-        },
+    let q0 = LastPullRequest::build_query(last_pull_request::Variables {
+        name: name.to_string(),
+        owner: owner.to_string(),
     });
+
+//    let q1 = RequestReviews::build_query(request_reviews::Variables {
+//        input: request_reviews::RequestReviewsInput {
+//            client_mutation_id: None,
+//            pull_request_id: pull_id,
+//            team_ids: Some(vec![]),
+//            union: None,
+//            user_ids: Some(vec!["1".to_string()]),
+//        },
+//    });
 
     let client = reqwest::Client::new();
 
     let mut res = client
         .post("https://api.github.com/graphql")
         .bearer_auth(repo_token)
-        .json(&q)
+        .json(&q0)
         .send()?;
 
-    let response_body: Response<request_reviews::ResponseData> = res.json()?;
+    let response_body: Response<last_pull_request::ResponseData> = res.json()?;
     info!("{:?}", response_body);
 
     if let Some(errors) = response_body.errors {
@@ -78,16 +91,25 @@ fn main() -> Result<(), failure::Error> {
         }
     }
 
-    let response_data = response_body
-        .data
-        .expect("missing response data")
-        .request_reviews
-        .expect("request_reviews");
+    let response_nodes = response_body.data.expect("response data").repository.expect("repository").pull_requests.nodes.expect("nodes");
+    assert!(response_nodes.len() == 1);
+    let node_id = &response_nodes.last().unwrap().as_ref().expect("some node").id;
 
     println!(
-        "{:?}\t{:?}\t🌟",
-        response_data.client_mutation_id, response_data.pull_request
+        "{:?}\t🌟",
+        node_id
     );
+
+//    let response_data = response_body
+//        .data
+//        .expect("missing response data")
+//        .request_reviews
+//        .expect("request_reviews");
+
+//    println!(
+//        "{:?}\t{:?}\t🌟",
+//        response_data.client_mutation_id, response_data.pull_request
+//    );
 
     /*
     let mut table = prettytable::Table::new();

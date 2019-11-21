@@ -1,3 +1,13 @@
+query LastPullRequest($name: String!, $owner: String!) {
+    repository(name: $name, owner: $owner) {
+        pullRequests(last: 1) {
+            nodes {
+                id
+            }
+        }
+    }
+}
+
 mutation RequestReviews($input: RequestReviewsInput!) {
   requestReviews(input: $input) {
     clientMutationId
