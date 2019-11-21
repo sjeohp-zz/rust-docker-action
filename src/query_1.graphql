@@ -3,6 +3,11 @@ query LastPullRequest($name: String!, $owner: String!) {
         pullRequests(last: 1) {
             nodes {
                 id
+                suggestedReviewers {
+                    reviewer {
+                        id
+                    }
+                }
             }
         }
     }

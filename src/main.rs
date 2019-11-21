@@ -57,59 +57,68 @@ fn main() -> Result<(), failure::Error> {
 
     let repo_token = args.repo_token;
 
-    let q0 = LastPullRequest::build_query(last_pull_request::Variables {
-        name: name.to_string(),
-        owner: owner.to_string(),
-    });
+    let (pr_id, suggested_id) = {
+        let q0 = LastPullRequest::build_query(last_pull_request::Variables {
+            name: name.to_string(),
+            owner: owner.to_string(),
+        });
 
-//    let q1 = RequestReviews::build_query(request_reviews::Variables {
-//        input: request_reviews::RequestReviewsInput {
-//            client_mutation_id: None,
-//            pull_request_id: pull_id,
-//            team_ids: Some(vec![]),
-//            union: None,
-//            user_ids: Some(vec!["1".to_string()]),
-//        },
-//    });
+        let client = reqwest::Client::new();
 
-    let client = reqwest::Client::new();
+        let mut res = client
+            .post("https://api.github.com/graphql")
+            .bearer_auth(repo_token)
+            .json(&q0)
+            .send()?;
 
-    let mut res = client
-        .post("https://api.github.com/graphql")
-        .bearer_auth(repo_token)
-        .json(&q0)
-        .send()?;
+        let response_body: Response<last_pull_request::ResponseData> = res.json()?;
+        info!("{:?}", response_body);
 
-    let response_body: Response<last_pull_request::ResponseData> = res.json()?;
-    info!("{:?}", response_body);
+        if let Some(errors) = response_body.errors {
+            println!("there are errors:");
 
-    if let Some(errors) = response_body.errors {
-        println!("there are errors:");
-
-        for error in &errors {
-            println!("{:?}", error);
+            for error in &errors {
+                println!("{:?}", error);
+            }
         }
-    }
 
-    let response_nodes = response_body.data.expect("response data").repository.expect("repository").pull_requests.nodes.expect("nodes");
-    assert!(response_nodes.len() == 1);
-    let node_id = &response_nodes.last().unwrap().as_ref().expect("some node").id;
+        let response_prs = response_body
+            .data
+            .expect("response data")
+            .repository
+            .expect("repository")
+            .pull_requests
+            .nodes
+            .expect("nodes");
+        assert!(response_prs.len() == 1);
+        let pr = &response_prs.last().unwrap().as_ref().expect("some node");
+        let pr_id = pr.id.clone();
+        let suggested_id = pr.suggested_reviewers.first().map(|rev| rev.as_ref().expect("suggestion contains reviewer").reviewer.id.clone());
 
-    println!(
-        "{:?}\t🌟",
-        node_id
-    );
+        println!("{:?}\t{:?}\t🌟", pr_id, suggested_id);
+        (pr_id, suggested_id)
+    };
 
-//    let response_data = response_body
-//        .data
-//        .expect("missing response data")
-//        .request_reviews
-//        .expect("request_reviews");
+    //    let q1 = RequestReviews::build_query(request_reviews::Variables {
+    //        input: request_reviews::RequestReviewsInput {
+    //            client_mutation_id: None,
+    //            pull_request_id: pull_id,
+    //            team_ids: Some(vec![]),
+    //            union: None,
+    //            user_ids: Some(vec!["1".to_string()]),
+    //        },
+    //    });
 
-//    println!(
-//        "{:?}\t{:?}\t🌟",
-//        response_data.client_mutation_id, response_data.pull_request
-//    );
+    //    let response_data = response_body
+    //        .data
+    //        .expect("missing response data")
+    //        .request_reviews
+    //        .expect("request_reviews");
+
+    //    println!(
+    //        "{:?}\t{:?}\t🌟",
+    //        response_data.client_mutation_id, response_data.pull_request
+    //    );
 
     /*
     let mut table = prettytable::Table::new();
